@@ -128,6 +128,6 @@ public class DBManager extends SQLiteOpenHelper {
     public Cursor getAllProducts() {
         SQLiteDatabase db = this.getReadableDatabase();
 
-        return db.query(DBManager.TABLE_PRODUCTS, null, null, null, null, null, PRODUCTS_COL_NAME)
+        return db.query(DBManager.TABLE_PRODUCTS, null, null, null, null, null, PRODUCTS_COL_NAME);
     }
 }
