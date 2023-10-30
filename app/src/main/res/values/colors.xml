@@ -2,4 +2,7 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="background_row_labels_grid">#EEEEEE</color>
+    <color name="background_row_values_grid">#666666</color>
+    <color name="warning_stock">#AA0000</color>
 </resources>

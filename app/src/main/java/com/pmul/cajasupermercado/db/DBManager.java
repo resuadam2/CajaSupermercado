@@ -8,6 +8,10 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
+import com.pmul.cajasupermercado.model.Producto;
+
+import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.Random;
 
 public class DBManager extends SQLiteOpenHelper {
@@ -33,6 +37,9 @@ public class DBManager extends SQLiteOpenHelper {
     }
 
 
+
+    private boolean isCreating = false;
+    protected SQLiteDatabase currentDB = null;
     @Override
     public void onCreate(SQLiteDatabase db) {
         Log.i("DBManager", DB_NAME + " creating " + TABLE_PRODUCTS + " and " + TABLE_CARRITO);
@@ -54,13 +61,39 @@ public class DBManager extends SQLiteOpenHelper {
                     " FOREIGN KEY (" + CARRITO_COL_ID + ") REFERENCES "+
                      TABLE_PRODUCTS + "(" + PRODUCTS_COL_ID + "))");
             db.setTransactionSuccessful();
-            createBasics();
 
         } catch (SQLException exc) {
             Log.e("DBManager.onCreate", exc.getMessage());
         } finally {
             db.endTransaction();
         }
+        isCreating = true;
+        currentDB = db;
+        createBasics();
+        isCreating = false;
+        currentDB = null;
+    }
+
+    @Override
+    public SQLiteDatabase getWritableDatabase() {
+        SQLiteDatabase db;
+        if(isCreating && currentDB != null) {
+            db = currentDB;
+        } else {
+            db = super.getWritableDatabase();
+        }
+        return db;
+    }
+
+    @Override
+    public SQLiteDatabase getReadableDatabase() {
+        SQLiteDatabase db;
+        if(isCreating && currentDB != null) {
+            db = currentDB;
+        } else {
+            db = super.getReadableDatabase();
+        }
+        return db;
     }
 
     private void createBasics() {
@@ -70,9 +103,14 @@ public class DBManager extends SQLiteOpenHelper {
 
         for(String str : names) {
             int stock_actual = stocks.nextInt(100);
-            addProduct(str, stock_actual, stock_actual/10, prices.nextDouble());
+            addProduct(str, stock_actual, stock_actual/10, round(prices.nextDouble()*10));
         }
         addProduct("Bajo de stock", 5, 10, 5.2);
+    }
+
+    private double round(double value) {
+        DecimalFormat df = new DecimalFormat("#.##");
+        return Double.parseDouble(df.format(value));
     }
 
     @Override
@@ -90,6 +128,57 @@ public class DBManager extends SQLiteOpenHelper {
         }
     }
 
+    /**
+     * Añade un producto a la base de datos, si ya existe actualiza el stock, está sobrecargado para reutilizar la db del onCrate
+     * @param db   base de datos
+     * @param name nombre del producto
+     * @param stock stock actual
+     * @param w_stock stock mínimo
+     * @param price precio
+     */
+    public void addProduct(SQLiteDatabase db, String name, int stock, int w_stock, double price) {
+        db = this.getWritableDatabase();
+        Cursor cursor = null;
+        ContentValues values = new ContentValues();
+
+        values.put(PRODUCTS_COL_NAME, name);
+        values.put(PRODUCTS_COL_PRICE, price);
+        values.put(PRODUCTS_COL_STOCK, stock);
+        values.put(PRODUCTS_COL_WARNING_STOCK, w_stock);
+
+        try {
+            db.beginTransaction();
+            cursor = db.query( TABLE_PRODUCTS,
+                    new String[] {PRODUCTS_COL_ID},
+                    PRODUCTS_COL_NAME + "= ?",
+                    new String[] { name }, null, null, null, "1");
+            if(cursor.getCount() > 0 ) {
+                db.update( TABLE_PRODUCTS,
+                        values,
+                        PRODUCTS_COL_ID + " = ?",
+                        new String [] {cursor.getString(0)});
+            } else {
+                db.insert(TABLE_PRODUCTS,
+                        null,
+                        values);
+            }
+            db.setTransactionSuccessful();
+        } catch (SQLException exc) {
+            Log.e("DBManager.addProducto", exc.getMessage());
+        } finally {
+            cursor.close();
+            db.endTransaction();
+        }
+    }
+
+
+    /**
+     * Añade un producto a la base de datos, si ya existe actualiza el stock
+     * @param name nombre del producto
+     * @param stock stock actual
+     * @param w_stock   stock mínimo
+     * @param price precio
+     */
     public void addProduct(String name, int stock, int w_stock, double price) {
         SQLiteDatabase db = this.getWritableDatabase();
         Cursor cursor = null;
@@ -125,9 +214,14 @@ public class DBManager extends SQLiteOpenHelper {
         }
     }
 
-    public Cursor getAllProducts() {
+    public ArrayList<Producto> getAllProducts() {
         SQLiteDatabase db = this.getReadableDatabase();
-
-        return db.query(DBManager.TABLE_PRODUCTS, null, null, null, null, null, PRODUCTS_COL_NAME);
+        Cursor cursor = db.query(DBManager.TABLE_PRODUCTS, null, null, null, null, null, PRODUCTS_COL_NAME);
+        ArrayList<Producto> productos = new ArrayList<>();
+        while(cursor.moveToNext()) {
+            productos.add(new Producto(cursor.getInt(0), cursor.getString(1), cursor.getInt(2), cursor.getInt(4), cursor.getDouble(3)));
+        }
+        cursor.close();
+        return productos;
     }
 }

@@ -2,12 +2,12 @@ package com.pmul.cajasupermercado;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.widget.ListView;
 import android.widget.Button;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import com.pmul.cajasupermercado.model.Producto;
 
@@ -45,7 +45,13 @@ public class MainActivity extends AppCompatActivity {
     private void checkout() {
     }
 
+    /**
+     * inicia una nueva actividad addproducttocarritoactivity para añadir un nuevo producto a la lista como resultado de la
+     * otra actividad  (startactivityforresult)
+     */
     private void addProducto() {
+        this.startActivityForResult(new Intent(this, AddProductToCarritoActivity.class), 1);
+
     }
 
     private boolean deleteProducto() {
