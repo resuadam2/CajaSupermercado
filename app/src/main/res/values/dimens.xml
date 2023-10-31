@@ -2,4 +2,5 @@
 <resources>
     <dimen name="smallMargin">5dp</dimen>
     <dimen name="colWidth">80dp</dimen>
+    <dimen name="colHeight">40dp</dimen>
 </resources>

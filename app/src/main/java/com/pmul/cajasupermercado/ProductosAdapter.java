@@ -1,6 +1,8 @@
 package com.pmul.cajasupermercado;
 
 import android.content.Context;
+import android.graphics.Color;
+import android.os.Build;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -50,54 +52,38 @@ public class ProductosAdapter extends BaseAdapter {
             v = inflater.inflate(layout, null);
         }
 
+        TextView lblStock = (TextView) v.findViewById(R.id.lblStock);
+        lblStock.setText(R.string.stock);
+        TextView lblWStock = (TextView) v.findViewById(R.id.lblW_Stock);
+        lblWStock.setText(R.string.w_stock);
+
         Producto producto = getItem(position);
         TextView nombre = (TextView) v.findViewById(R.id.lvProductsName);
-        TextView cant = (TextView) v.findViewById(R.id.lvProductsCant);
+        TextView stock = (TextView) v.findViewById(R.id.lvProductsCant);
         TextView precio_uni = (TextView) v.findViewById(R.id.lvProductsPriceUni);
-        TextView precio_total = (TextView) v.findViewById(R.id.lvProductsPriceTotal);
+        TextView w_stock = (TextView) v.findViewById(R.id.lvProductsPriceTotal);
 
         nombre.setText(producto.getName());
-        cant.setText(Integer.toString(producto.getStock())); //Esto es la cantidad del ticket en el caso del carrito
+        stock.setText(Integer.toString(producto.getStock())); //Esto es la cantidad del ticket en el caso del carrito
         // Crea un objeto DecimalFormat para formatear el número
         DecimalFormat formato = new DecimalFormat("#.##");
         precio_uni.setText(formato.format(producto.getPrice()) + context.getString(R.string.euro));
-        precio_total.setText(formato.format(producto.getPrice()*producto.getStock()) + context.getString(R.string.euro));
+        w_stock.setText(formato.format(producto.getW_stock()));
+
+        if(producto.getStock() < producto.getW_stock()) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                stock.setTextColor(context.getColor(R.color.warning_stock));
+            } else {
+                stock.setTextColor(Color.RED);
+            }
+        } else {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                stock.setTextColor(context.getColor(R.color.white));
+            } else {
+                stock.setTextColor(Color.WHITE);
+            }
+        }
 
         return v;
-    }
-
-    public View getViewForItem(int position) {
-        if (position < 0 || position >= getCount()) {
-            return null; // Maneja casos fuera de rango
-        }
-        View itemView = getView(position, null, null);
-        return itemView;
-    }
-
-    /**
-     * Metodo para cambiar el fondo de la vista de un producto bajo de stock
-     */
-    public void setWarningStock(int position) {
-        View v = getViewForItem(position);
-        Log.i("v", v.getId() + "" );
-        LinearLayout linear = (LinearLayout) v;
-        Log.i("v", linear.getId() + "" );
-        Log.i("v", linear.getBackground() + "" );
-
-        GridLayout grid = (GridLayout) v.findViewById(R.id.grid);
-        TextView stock = (TextView) v.findViewById(R.id.lvProductsCant);
-        linear.setBackgroundColor(context.getResources().getColor(R.color.warning_stock));
-        grid.setBackgroundColor(context.getResources().getColor(R.color.warning_stock));
-        stock.setTextColor(context.getResources().getColor(R.color.warning_stock));
-        Log.i("v", linear.getBackground() + "" );
-
-    }
-
-    public void setNormalStock(int i) {
-        View v = getView(i, null, null);
-        Log.i("v", v.toString() );
-
-        GridLayout grid = (GridLayout) v.findViewById(R.id.grid);
-        grid.setBackgroundColor(context.getResources().getColor(R.color.white));
     }
 }

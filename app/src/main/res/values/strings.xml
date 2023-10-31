@@ -15,4 +15,6 @@
     <string name="titulo_add_product">Añadir un nuevo producto al carrito</string>
     <string name="unidades">Unidades</string>
     <string name="uno">1</string>
+    <string name="stock">Stock</string>
+    <string name="w_stock">Aviso Stock</string>
 </resources>

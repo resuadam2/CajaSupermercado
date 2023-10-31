@@ -3,7 +3,6 @@
     android:layout_height="wrap_content"
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/llProductItem"
-    android:background="@color/black"
     android:gravity="center">
     <GridLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
@@ -18,7 +17,7 @@
         <!-- Primera fila -->
         <TextView
             android:layout_width="@dimen/colWidth"
-            android:layout_height="wrap_content"
+            android:layout_height="@dimen/colHeight"
             android:layout_columnWeight="1"
             android:text="@string/lblProduct"
             android:gravity="center"
@@ -28,7 +27,7 @@
 
         <TextView
             android:layout_width="@dimen/colWidth"
-            android:layout_height="wrap_content"
+            android:layout_height="@dimen/colHeight"
             android:layout_columnWeight="1"
             android:text="@string/lblProductPriceUni"
             android:gravity="center"
@@ -39,8 +38,9 @@
 
         <TextView
             android:layout_width="@dimen/colWidth"
-            android:layout_height="wrap_content"
+            android:layout_height="@dimen/colHeight"
             android:layout_columnWeight="1"
+            android:id="@+id/lblStock"
             android:text="@string/lblCantidadItem"
             android:gravity="center"
             android:padding="2dp"
@@ -50,8 +50,9 @@
 
         <TextView
             android:layout_width="@dimen/colWidth"
-            android:layout_height="wrap_content"
+            android:layout_height="@dimen/colHeight"
             android:layout_columnWeight="1"
+            android:id="@+id/lblW_Stock"
             android:text="@string/lblTotal"
             android:gravity="center"
             android:padding="2dp"
@@ -62,7 +63,7 @@
         <!-- Segunda fila -->
         <TextView
             android:layout_width="@dimen/colWidth"
-            android:layout_height="wrap_content"
+            android:layout_height="@dimen/colHeight"
             android:layout_columnWeight="1"
             android:id="@+id/lvProductsName"
             android:text="@string/Ejemplo"
@@ -74,7 +75,7 @@
 
         <TextView
             android:layout_width="@dimen/colWidth"
-            android:layout_height="wrap_content"
+            android:layout_height="@dimen/colHeight"
             android:layout_columnWeight="1"
             android:id="@+id/lvProductsPriceUni"
             android:text="@string/NumEjemplo"
@@ -86,7 +87,7 @@
 
         <TextView
             android:layout_width="@dimen/colWidth"
-            android:layout_height="wrap_content"
+            android:layout_height="@dimen/colHeight"
             android:layout_columnWeight="1"
             android:id="@+id/lvProductsCant"
             android:text="@string/NumEjemplo"
@@ -98,7 +99,7 @@
 
         <TextView
             android:layout_width="@dimen/colWidth"
-            android:layout_height="wrap_content"
+            android:layout_height="@dimen/colHeight"
             android:layout_columnWeight="1"
             android:id="@+id/lvProductsPriceTotal"
             android:text="@string/NumEjemplo"

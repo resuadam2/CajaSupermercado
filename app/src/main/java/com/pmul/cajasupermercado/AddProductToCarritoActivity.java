@@ -47,19 +47,7 @@ public class AddProductToCarritoActivity extends AppCompatActivity {
         super.onResume();
         // Recorremos el adaptador para ver el stock de cada producto
 
-        for (int i = 0; i < this.adaptadorProductos.getCount(); i++) {
-            Producto producto = this.adaptadorProductos.getItem(i);
-            Log.i(producto.getName(), producto.getName()+ ":" + producto.getStock() + " " + producto.getW_stock());
-            if(producto.getStock() < producto.getW_stock()){
-                this.adaptadorProductos.setWarningStock(i);
-                Log.i("Bajo de stock", "Bajo de stock en el if" );
 
-            } else {
-                this.adaptadorProductos.setNormalStock(i);
-                Log.i("Bajo de stock", "Bajo de stock en el else" );
-            }
-        }
-        this.adaptadorProductos.notifyDataSetChanged();
     }
 
 
