@@ -22,6 +22,8 @@ public class ProductosAdapter extends BaseAdapter {
     private ArrayList<Producto> productos;
     private int layout;
 
+    public static int selected = -1;
+
     public ProductosAdapter(Context contexto, int layout, ArrayList<Producto> productos) {
         this.context = contexto;
         this.layout = layout;
@@ -84,6 +86,26 @@ public class ProductosAdapter extends BaseAdapter {
             }
         }
 
+        if(selected == position) {
+            LinearLayout linear = (LinearLayout) v.findViewById(R.id.llProductItem);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                linear.setBackgroundColor(context.getColor(R.color.primary));
+            } else {
+                linear.setBackgroundColor(Color.argb(153,103,80,164)); //#996750A4
+            }
+        } else {
+            LinearLayout linear = (LinearLayout) v.findViewById(R.id.llProductItem);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                linear.setBackgroundColor(context.getColor(R.color.white));
+            } else {
+                linear.setBackgroundColor(Color.WHITE);
+            }
+        }
+
         return v;
+    }
+
+    public static void setSelected(int selected) {
+        ProductosAdapter.selected = selected;
     }
 }
