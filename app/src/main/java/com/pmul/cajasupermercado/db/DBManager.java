@@ -8,7 +8,9 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Build;
 import android.util.Log;
+import android.widget.Toast;
 
+import com.pmul.cajasupermercado.AddProductToCarritoActivity;
 import com.pmul.cajasupermercado.model.Producto;
 
 import java.text.DecimalFormat;
@@ -36,8 +38,6 @@ public class DBManager extends SQLiteOpenHelper {
     public DBManager(Context context) {
         super(context, DB_NAME, null, DB_VERSION);
     }
-
-
 
     private boolean isCreating = false;
     protected SQLiteDatabase currentDB = null;
@@ -212,8 +212,7 @@ public class DBManager extends SQLiteOpenHelper {
                     new String[] {PRODUCTS_COL_STOCK},
                     PRODUCTS_COL_ID + "= ?",
                     new String[] {Integer.toString(id)}, null, null, null, "1");
-            Log.i("cursorlog", cursor.getInt(0) + " cursorlog " + cursor.getCount());
-            int currentStock = cursor.getInt(0);
+            int currentStock = cursor.getInt(cursor.getColumnIndexOrThrow(PRODUCTS_COL_STOCK));
             if(currentStock < cantidad) {
                 Log.i(".addProductToCarrito", "No hay suficiente stock para añadir tal cantidad de ese producto");
                 return false;
