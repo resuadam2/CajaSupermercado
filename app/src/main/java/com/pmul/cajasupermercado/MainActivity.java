@@ -16,9 +16,11 @@ import com.pmul.cajasupermercado.model.Producto;
 
 public class MainActivity extends AppCompatActivity {
     private ArrayList<Producto> productos;
-    private ProductosAdapter adaptadorProductos;
+    private CarritoAdapter adaptadorProductos;
 
     private DBManager dbManager;
+
+    protected static final int CODIGO_ADICION_PRODUCT = 100;
 
 
     @Override
@@ -32,11 +34,13 @@ public class MainActivity extends AppCompatActivity {
 
         this.productos = new ArrayList<>();
         productos = dbManager.getAllCarrito();
-        this.adaptadorProductos = new ProductosAdapter(
+        this.adaptadorProductos = new CarritoAdapter(
                 this,
                 R.layout.lvproductos,
                 this.productos
         );
+
+        lvProductos.setAdapter(adaptadorProductos);
 
         lvProductos.setOnItemClickListener((parent, view, position, id) -> editProducto());
 
@@ -48,6 +52,15 @@ public class MainActivity extends AppCompatActivity {
         Button btCheckout = this.findViewById(R.id.btCheckout);
         btCheckout.setOnClickListener(v -> checkout());
 
+        updateCarrito();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        this.productos = dbManager.getAllCarrito();
+        this.adaptadorProductos.notifyDataSetChanged();
+        this.updateCarrito();
     }
 
     private void checkout() {
@@ -58,15 +71,28 @@ public class MainActivity extends AppCompatActivity {
      * otra actividad  (startactivityforresult)
      */
     private void addProducto() {
-        this.startActivityForResult(new Intent(this, AddProductToCarritoActivity.class), 1);
+        this.startActivityForResult(new Intent(this, AddProductToCarritoActivity.class), CODIGO_ADICION_PRODUCT);
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if(resultCode == RESULT_OK) {
-            adaptadorProductos.notifyDataSetChanged();
-            updateCarrito();
+
+        if(resultCode == RESULT_OK && requestCode == CODIGO_ADICION_PRODUCT) {
+            Producto p = new Producto(
+                    data.getExtras().getInt("id"),
+                    data.getExtras().getString("name"),
+                    data.getExtras().getInt("quantity"),
+                    data.getExtras().getDouble("price")
+            );
+
+            if(this.productos.contains(p)) {
+                this.productos.get(this.productos.indexOf(p)).setStock(p.getStock());
+            } else {
+                this.productos.add(p);
+            }
+            this.adaptadorProductos.notifyDataSetChanged();
+            this.updateCarrito();
         }
     }
 

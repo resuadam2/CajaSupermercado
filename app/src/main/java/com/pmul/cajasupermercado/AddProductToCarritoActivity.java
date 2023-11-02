@@ -1,5 +1,6 @@
 package com.pmul.cajasupermercado;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -71,18 +72,20 @@ public class AddProductToCarritoActivity extends AppCompatActivity {
 
             @Override
             public void afterTextChanged(Editable s) {
-                if(s.length() == 0 || Integer.parseInt(s.toString()) == 0) btAddToCarrito.setEnabled(false);
-                else btAddToCarrito.setEnabled(true);
+                btAddToCarrito.setEnabled(cantidadOk(s));
             }
         });
     }
 
     private void selectProduct(int position) {
         ProductosAdapter.setSelected(position);
-        Toast.makeText(this, position + " id adapter: " + adaptadorProductos.getItem(position).getId() +
-                " id elemento: " + productos.get(position).getId(), Toast.LENGTH_LONG).show();
-        btAddToCarrito.setEnabled(true); //Ya existe un elemento seleccionado
+        btAddToCarrito.setEnabled(cantidadOk(etCant.getText())); //Ya existe un elemento seleccionado
         adaptadorProductos.notifyDataSetChanged();
+    }
+
+    private boolean cantidadOk(Editable s) {
+        if(s.length() ==  0|| Integer.parseInt(s.toString()) == 0) return false;
+        else return true;
     }
 
     private void addProductToCarrito() {
@@ -91,7 +94,12 @@ public class AddProductToCarritoActivity extends AppCompatActivity {
                     productos.get(ProductosAdapter.selected).getId(),
                     Integer.parseInt(etCant.getText().toString())
             )) {
-                AddProductToCarritoActivity.this.setResult(RESULT_OK);
+                Intent data = new Intent();
+                data.putExtra("id", productos.get(ProductosAdapter.selected).getId());
+                data.putExtra("quantity", Integer.parseInt(etCant.getText().toString()));
+                data.putExtra("name", productos.get(ProductosAdapter.selected).getName());
+                data.putExtra("price", productos.get(ProductosAdapter.selected).getPrice());
+                AddProductToCarritoActivity.this.setResult(RESULT_OK, data);
                 AddProductToCarritoActivity.this.finish();
             } else {
                 Toast.makeText(this, R.string.no_stock, Toast.LENGTH_LONG).show();

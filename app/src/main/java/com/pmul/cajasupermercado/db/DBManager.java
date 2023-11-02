@@ -212,12 +212,20 @@ public class DBManager extends SQLiteOpenHelper {
                     new String[] {PRODUCTS_COL_STOCK},
                     PRODUCTS_COL_ID + "= ?",
                     new String[] {Integer.toString(id)}, null, null, null, "1");
-            int currentStock = cursor.getInt(cursor.getColumnIndexOrThrow(PRODUCTS_COL_STOCK));
+            cursor.moveToFirst();
+            int currentStock = cursor.getInt(0);
             if(currentStock < cantidad) {
                 Log.i(".addProductToCarrito", "No hay suficiente stock para añadir tal cantidad de ese producto");
                 transactionOk = false;
             } else {
-                db.insert(TABLE_CARRITO, null, values);
+                if(productoExisteEnCarrito(id)) {
+                    ContentValues carritoUpdated = new ContentValues();
+                    carritoUpdated.put(CARRITO_COL_CANT, cantidad + cantidadProductoEnCarrito(id));
+                    db.update(TABLE_CARRITO, values, CARRITO_COL_ID + "= ?",
+                            new String[] {Integer.toString(id)});
+                } else {
+                    db.insert(TABLE_CARRITO, null, values);
+                }
                 ContentValues updatedProduct = new ContentValues();
                 updatedProduct.put(PRODUCTS_COL_STOCK, currentStock - cantidad);
                 db.update(TABLE_PRODUCTS,
@@ -237,6 +245,42 @@ public class DBManager extends SQLiteOpenHelper {
             cursor.close();
             db.endTransaction();
             return transactionOk;
+        }
+    }
+
+    private int cantidadProductoEnCarrito(int id) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = null;
+        try {
+            cursor = db.query(TABLE_CARRITO,
+                    new String[]{CARRITO_COL_CANT},
+                    CARRITO_COL_ID + "= ?",
+                    new String [] {Integer.toString(id)}, null, null, null, null);
+            cursor.moveToFirst();
+            return cursor.getInt(0);
+        } catch (SQLException exception) {
+            Log.e("cantidadProductoEnCarrito", exception.getMessage());
+            return -1;
+        } finally {
+            cursor.close();
+        }
+    }
+
+    private boolean productoExisteEnCarrito(int id) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = null;
+        try {
+            cursor = db.query(TABLE_CARRITO,
+                    new String[]{CARRITO_COL_ID},
+                    CARRITO_COL_ID + "= ?",
+                    new String [] {Integer.toString(id)}, null, null, null, null);
+            if(cursor.getCount() > 0) return true;
+            else return false;
+        } catch (SQLException exception) {
+            Log.e("productoExisteCarrito", exception.getMessage());
+            return false;
+        } finally {
+            cursor.close();
         }
     }
 
@@ -262,18 +306,22 @@ public class DBManager extends SQLiteOpenHelper {
      */
     public ArrayList<Producto> getAllCarrito() {
         SQLiteDatabase db = this.getReadableDatabase();
+        // Cursor cursor será el que recorra la tabla Carrito, con el id y la cantidad
         Cursor cursor = db.query(TABLE_CARRITO, null, null, null, null, null, null);
         ArrayList<Producto> productos = new ArrayList<>();
         while(cursor.moveToNext()) {
+            /* Cursor dara será el que recorra la tabla Productos en busca de los nombres y precios de los
+                productos que hay en el carrito
+             */
             Cursor data = db.query(TABLE_PRODUCTS,
                     new String[]{PRODUCTS_COL_NAME, PRODUCTS_COL_PRICE},
                     CARRITO_COL_ID + "= ?",
                     new String[]{Integer.toString(cursor.getInt(0))},
                     null, null, null, "1");
+            data.moveToFirst();
             productos.add( new Producto(cursor.getInt(0),
                     data.getString(0),
                     cursor.getInt(1),
-                    0,
                     data.getDouble(1)));
             data.close();
         }
