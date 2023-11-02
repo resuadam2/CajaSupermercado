@@ -17,4 +17,5 @@
     <string name="uno">1</string>
     <string name="stock">Stock</string>
     <string name="w_stock">Aviso Stock</string>
+    <string name="no_stock">No hay stock suficiente</string>
 </resources>

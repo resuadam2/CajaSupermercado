@@ -50,6 +50,8 @@
             android:gravity="center"
             android:layout_marginStart="@dimen/smallMargin"
             android:inputType="number"
+            android:id="@+id/etCant"
+            android:maxLength="4"
             android:text="@string/uno"></EditText>
 
         <TextView
