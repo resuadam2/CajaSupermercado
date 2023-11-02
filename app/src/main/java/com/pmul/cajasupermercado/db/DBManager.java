@@ -205,7 +205,7 @@ public class DBManager extends SQLiteOpenHelper {
         ContentValues values = new ContentValues();
         values.put(CARRITO_COL_ID, id);
         values.put(CARRITO_COL_CANT, cantidad);
-
+        boolean transactionOk = false;
         try {
             db.beginTransaction();
             cursor = db.query(TABLE_PRODUCTS,
@@ -215,7 +215,7 @@ public class DBManager extends SQLiteOpenHelper {
             int currentStock = cursor.getInt(cursor.getColumnIndexOrThrow(PRODUCTS_COL_STOCK));
             if(currentStock < cantidad) {
                 Log.i(".addProductToCarrito", "No hay suficiente stock para añadir tal cantidad de ese producto");
-                return false;
+                transactionOk = false;
             } else {
                 db.insert(TABLE_CARRITO, null, values);
                 ContentValues updatedProduct = new ContentValues();
@@ -224,16 +224,20 @@ public class DBManager extends SQLiteOpenHelper {
                         updatedProduct,
                         PRODUCTS_COL_ID + "= ?",
                         new String[] {Integer.toString(id)});
+                transactionOk = true;
             }
             db.setTransactionSuccessful();
         } catch (SQLException exception) {
             Log.e(".addProductToCarrito", exception.getMessage());
-            return false;
+            transactionOk = false;
+        } catch (Exception exception) {
+            Log.e(".addProductToCarrito", exception.getMessage() );
+            transactionOk = false;
         } finally {
             cursor.close();
             db.endTransaction();
+            return transactionOk;
         }
-        return true;
     }
 
 
