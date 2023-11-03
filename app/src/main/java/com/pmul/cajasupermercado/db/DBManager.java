@@ -221,7 +221,7 @@ public class DBManager extends SQLiteOpenHelper {
                 if(productoExisteEnCarrito(id)) {
                     ContentValues carritoUpdated = new ContentValues();
                     carritoUpdated.put(CARRITO_COL_CANT, cantidad + cantidadProductoEnCarrito(id));
-                    db.update(TABLE_CARRITO, values, CARRITO_COL_ID + "= ?",
+                    db.update(TABLE_CARRITO, carritoUpdated, CARRITO_COL_ID + "= ?",
                             new String[] {Integer.toString(id)});
                 } else {
                     db.insert(TABLE_CARRITO, null, values);

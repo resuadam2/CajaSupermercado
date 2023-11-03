@@ -94,11 +94,13 @@ public class AddProductToCarritoActivity extends AppCompatActivity {
                     productos.get(ProductosAdapter.selected).getId(),
                     Integer.parseInt(etCant.getText().toString())
             )) {
+
                 Intent data = new Intent();
                 data.putExtra("id", productos.get(ProductosAdapter.selected).getId());
                 data.putExtra("quantity", Integer.parseInt(etCant.getText().toString()));
                 data.putExtra("name", productos.get(ProductosAdapter.selected).getName());
                 data.putExtra("price", productos.get(ProductosAdapter.selected).getPrice());
+
                 AddProductToCarritoActivity.this.setResult(RESULT_OK, data);
                 AddProductToCarritoActivity.this.finish();
             } else {

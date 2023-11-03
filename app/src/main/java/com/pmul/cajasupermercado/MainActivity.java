@@ -3,10 +3,13 @@ package com.pmul.cajasupermercado;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Button;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -23,13 +26,16 @@ public class MainActivity extends AppCompatActivity {
 
     protected static final int CODIGO_ADICION_PRODUCT = 100;
 
+    private ProgressBar progressBar;
+    private ListView lvProductos;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        ListView lvProductos = (ListView) this.findViewById(R.id.lvProductos);
+        lvProductos = (ListView) this.findViewById(R.id.lvProductos);
+        progressBar = (ProgressBar) this.findViewById(R.id.progressBar);
 
         dbManager = new DBManager(this);
 
@@ -79,18 +85,8 @@ public class MainActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
 
         if(resultCode == RESULT_OK && requestCode == CODIGO_ADICION_PRODUCT) {
-            Producto p = new Producto(
-                    data.getExtras().getInt("id"),
-                    data.getExtras().getString("name"),
-                    data.getExtras().getInt("quantity"),
-                    data.getExtras().getDouble("price")
-            );
-
-            if(this.productos.contains(p)) {
-                this.productos.get(this.productos.indexOf(p)).setStock(p.getStock());
-            } else {
-                this.productos.add(p);
-            }
+            productos.clear(); // La idea de Dario funciona
+            productos.addAll(dbManager.getAllCarrito());
             this.adaptadorProductos.notifyDataSetChanged();
             this.updateCarrito();
         }
@@ -112,8 +108,6 @@ public class MainActivity extends AppCompatActivity {
      * Método que actualiza el textView con el precio total del carrito
      */
     private void updateCarrito() {
-        this.productos = dbManager.getAllCarrito();
-        this.adaptadorProductos.notifyDataSetChanged();
         TextView tvTotal = (TextView) this.findViewById(R.id.total);
         tvTotal.setText(Double.toString(totalCarrito()));
     }
@@ -124,4 +118,25 @@ public class MainActivity extends AppCompatActivity {
 
     private void editProducto() {
     }
+
+/*
+    private class UpdateDataAsyncTask extends AsyncTask<Void, Void, Void> {
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+            updateCarrito();
+            return null;
+        }
+
+        protected void onPostExecute() {
+            progressBar.setVisibility(View.GONE);
+
+            lvProductos.setVisibility(View.VISIBLE);
+
+            adaptadorProductos.notifyDataSetChanged();
+        }
+    }
+
+ */
 }
+
