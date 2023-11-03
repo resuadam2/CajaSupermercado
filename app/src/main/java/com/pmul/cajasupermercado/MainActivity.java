@@ -8,6 +8,7 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 
@@ -33,7 +34,7 @@ public class MainActivity extends AppCompatActivity {
         dbManager = new DBManager(this);
 
         this.productos = new ArrayList<>();
-        productos = dbManager.getAllCarrito();
+        this.productos = dbManager.getAllCarrito();
         this.adaptadorProductos = new CarritoAdapter(
                 this,
                 R.layout.lvproductos,
@@ -56,11 +57,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
-        this.productos = dbManager.getAllCarrito();
-        this.adaptadorProductos.notifyDataSetChanged();
-        this.updateCarrito();
+    protected void onStart() {
+        super.onStart();
+        Toast.makeText(this, "ejecutando el onStart", Toast.LENGTH_SHORT).show();
+        updateCarrito();
     }
 
     private void checkout() {
@@ -105,13 +105,15 @@ public class MainActivity extends AppCompatActivity {
         for(Producto p: productos) {
             total += p.getStock() * p.getPrice();
         }
-        return total;
+        return Math.round(total * 100.0) / 100.0;
     }
 
     /**
      * Método que actualiza el textView con el precio total del carrito
      */
     private void updateCarrito() {
+        this.productos = dbManager.getAllCarrito();
+        this.adaptadorProductos.notifyDataSetChanged();
         TextView tvTotal = (TextView) this.findViewById(R.id.total);
         tvTotal.setText(Double.toString(totalCarrito()));
     }

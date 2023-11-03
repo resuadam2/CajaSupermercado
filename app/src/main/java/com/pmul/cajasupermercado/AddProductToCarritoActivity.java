@@ -110,6 +110,7 @@ public class AddProductToCarritoActivity extends AppCompatActivity {
     }
 
     private void onCancel(View v) {
+        ProductosAdapter.setSelected(-1);
         this.setResult(RESULT_CANCELED);
         this.finish();
     }

@@ -259,7 +259,7 @@ public class DBManager extends SQLiteOpenHelper {
             cursor.moveToFirst();
             return cursor.getInt(0);
         } catch (SQLException exception) {
-            Log.e("cantidadProductoEnCarrito", exception.getMessage());
+            Log.e("cantidadEnCarrito", exception.getMessage());
             return -1;
         } finally {
             cursor.close();
