@@ -1,5 +1,6 @@
 package com.pmul.cajasupermercado;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
@@ -9,7 +10,6 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Button;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -26,7 +26,6 @@ public class MainActivity extends AppCompatActivity {
 
     protected static final int CODIGO_ADICION_PRODUCT = 100;
 
-    private ProgressBar progressBar;
     private ListView lvProductos;
 
     @Override
@@ -35,7 +34,6 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         lvProductos = (ListView) this.findViewById(R.id.lvProductos);
-        progressBar = (ProgressBar) this.findViewById(R.id.progressBar);
 
         dbManager = new DBManager(this);
 
@@ -49,9 +47,9 @@ public class MainActivity extends AppCompatActivity {
 
         lvProductos.setAdapter(adaptadorProductos);
 
-        lvProductos.setOnItemClickListener((parent, view, position, id) -> editProducto());
+        lvProductos.setOnItemClickListener((parent, view, position, id) -> editProducto(position));
 
-        lvProductos.setOnLongClickListener(v -> deleteProducto());
+        lvProductos.setOnItemLongClickListener((parent, view, position, id) -> deleteProducto(position));
 
         Button btAdd = this.findViewById(R.id.btAdd);
         btAdd.setOnClickListener(v -> addProducto());
@@ -69,7 +67,13 @@ public class MainActivity extends AppCompatActivity {
         updateCarrito();
     }
 
+    /**
+     * Método que inicia una nueva actividad checkoutactivity en la cual se introduce el dinero y se calcula el cambio
+     */
     private void checkout() {
+        Intent intent = new Intent(this, CheckoutActivity.class);
+        intent.putExtra("total", totalCarrito());
+        this.startActivity(intent);
     }
 
     /**
@@ -112,31 +116,36 @@ public class MainActivity extends AppCompatActivity {
         tvTotal.setText(Double.toString(totalCarrito()));
     }
 
-    private boolean deleteProducto() {
-        return false;
+    /**
+     * Método que elimina un producto del carrito
+     * @param position posición del producto en el ArrayList
+     * @return true si se ha eliminado correctamente, false en caso contrario
+     */
+    private boolean deleteProducto(int position) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle(R.string.delete_product_from_carrito);
+        builder.setMessage(this.getApplicationContext().getString(R.string.delete_product_from_carrito_message) + productos.get(position).getName() + "?");
+        builder.setPositiveButton(R.string.delete, (dialog, which) -> {
+            if(dbManager.deleteProductFromCarrito(productos.get(position).getId())){
+                productos.remove(position);
+                adaptadorProductos.notifyDataSetChanged();
+                updateCarrito();
+            } else {
+                Toast.makeText(this, R.string.cant_delete_product_from_carrito, Toast.LENGTH_LONG).show();
+            }
+        });
+        builder.setNegativeButton(R.string.cancel, null);
+        builder.create().show();
+        return true;
     }
 
-    private void editProducto() {
+    /**
+     * Método que inicia un AlertDialog para editar la cantidad de un producto del carrito
+     * @param position posición del producto en el ArrayList
+     */
+    private void editProducto(int position) {
+
     }
 
-/*
-    private class UpdateDataAsyncTask extends AsyncTask<Void, Void, Void> {
-
-        @Override
-        protected Void doInBackground(Void... voids) {
-            updateCarrito();
-            return null;
-        }
-
-        protected void onPostExecute() {
-            progressBar.setVisibility(View.GONE);
-
-            lvProductos.setVisibility(View.VISIBLE);
-
-            adaptadorProductos.notifyDataSetChanged();
-        }
-    }
-
- */
 }
 

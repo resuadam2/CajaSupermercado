@@ -19,21 +19,19 @@ import java.util.Random;
 
 public class DBManager extends SQLiteOpenHelper {
 
-    public static final String DB_NAME = "cajaSuperDB";
+    public static final String DB_NAME = "cajaSuperDB"; //Nombre de la base de datos
+    public static final int DB_VERSION = 1; //Versión de la base de datos
 
-    public static final int DB_VERSION = 1;
+    public static final String TABLE_PRODUCTS = "products"; //Nombre de la tabla de productos
+    public static final String PRODUCTS_COL_ID = "id"; //Nombre de la columna id
+    public static final String PRODUCTS_COL_NAME = "name"; //Nombre de la columna nombre
+    public static final String PRODUCTS_COL_STOCK = "stock";//Nombre de la columna stock
+    public static final String PRODUCTS_COL_PRICE = "price";//Nombre de la columna precio
+    public static final String PRODUCTS_COL_WARNING_STOCK = "w_stock";//Nombre de la columna stock mínimo
 
-    public static final String TABLE_PRODUCTS = "products";
-    public static final String PRODUCTS_COL_ID = "id";
-    public static final String PRODUCTS_COL_NAME = "name";
-    public static final String PRODUCTS_COL_STOCK = "stock";
-    public static final String PRODUCTS_COL_PRICE = "price";
-    public static final String PRODUCTS_COL_WARNING_STOCK = "w_stock";
-
-    public static final String TABLE_CARRITO = "carrito";
-
-    public static final String CARRITO_COL_ID = "id";
-    public static final String CARRITO_COL_CANT = "quantity";
+    public static final String TABLE_CARRITO = "carrito";//Nombre de la tabla carrito
+    public static final String CARRITO_COL_ID = "id";//Nombre de la columna id
+    public static final String CARRITO_COL_CANT = "quantity";//Nombre de la columna cantidad
 
     public DBManager(Context context) {
         super(context, DB_NAME, null, DB_VERSION);
@@ -41,6 +39,11 @@ public class DBManager extends SQLiteOpenHelper {
 
     private boolean isCreating = false;
     protected SQLiteDatabase currentDB = null;
+
+    /**
+     * Método que crea las tablas de la base de datos
+     * @param db La referencia a la base de datos.
+     */
     @Override
     public void onCreate(SQLiteDatabase db) {
         Log.i("DBManager", DB_NAME + " creating " + TABLE_PRODUCTS + " and " + TABLE_CARRITO);
@@ -248,6 +251,11 @@ public class DBManager extends SQLiteOpenHelper {
         }
     }
 
+    /**
+     * Método que nos devuelve la cantidad de un producto que hay en el carrito
+     * @param id del producto
+     * @return la cantidad de ese producto en el carrito
+     */
     private int cantidadProductoEnCarrito(int id) {
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = null;
@@ -266,6 +274,11 @@ public class DBManager extends SQLiteOpenHelper {
         }
     }
 
+    /**
+     * Método que comprueba si un producto ya existe en el carrito
+     * @param id del producto
+     * @return verdadero si existe, falso en caso contrario
+     */
     private boolean productoExisteEnCarrito(int id) {
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = null;
@@ -327,5 +340,49 @@ public class DBManager extends SQLiteOpenHelper {
         }
         cursor.close();
         return productos;
+    }
+
+    /**
+     * Método que elimina un producto del carrito y actualiza el stock del producto en la tabla
+     * @param id del producto que queremos eliminar
+     * @return verdadero si se ha podido eliminar correctamente, falso en caso contrario
+     */
+    public boolean deleteProductFromCarrito(int id) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        Cursor cursor = null;
+        try {
+            db.beginTransaction();
+            cursor = db.query(TABLE_CARRITO,
+                    new String[] {CARRITO_COL_CANT},
+                    CARRITO_COL_ID + "= ?",
+                    new String[] {Integer.toString(id)}, null, null, null, "1");
+            cursor.moveToFirst();
+            int cantidad = cursor.getInt(0);
+            cursor.close();
+            cursor = db.query(TABLE_PRODUCTS,
+                    new String[] {PRODUCTS_COL_STOCK},
+                    PRODUCTS_COL_ID + "= ?",
+                    new String[] {Integer.toString(id)}, null, null, null, "1");
+            cursor.moveToFirst();
+            int stock = cursor.getInt(0);
+            cursor.close();
+            ContentValues updatedProduct = new ContentValues();
+            updatedProduct.put(PRODUCTS_COL_STOCK, stock + cantidad);
+            db.update(TABLE_PRODUCTS,
+                    updatedProduct,
+                    PRODUCTS_COL_ID + "= ?",
+                    new String[] {Integer.toString(id)});
+            db.delete(TABLE_CARRITO,
+                    CARRITO_COL_ID + "= ?",
+                    new String[] {Integer.toString(id)});
+            db.setTransactionSuccessful();
+            return true;
+        } catch (SQLException exception) {
+            Log.e("deletePrdctFromCarrito", exception.getMessage());
+            return false;
+        } finally {
+            cursor.close();
+            db.endTransaction();
+        }
     }
 }

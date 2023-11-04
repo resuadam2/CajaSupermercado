@@ -18,4 +18,11 @@
     <string name="stock">Stock</string>
     <string name="w_stock">Aviso Stock</string>
     <string name="no_stock">No hay stock suficiente</string>
+    <string name="cant_delete_product_from_carrito">No se ha podido eliminar el producto del carrito</string>
+    <string name="delete_product_from_carrito">Borrando producto del carrito</string>
+    <string name="delete_product_from_carrito_message">"¿Seguro que desea borrar "</string>
+    <string name="delete">BORRAR</string>
+    <string name="cancel">CANCELAR</string>
+    <string name="checkout">Pasarela de pago</string>
+    <string name="coma">,</string>
 </resources>
