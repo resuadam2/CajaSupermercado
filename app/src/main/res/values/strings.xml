@@ -25,7 +25,7 @@
     <string name="cancel">CANCELAR</string>
     <string name="checkout">Pasarela de pago</string>
     <string name="coma">,</string>
-    <string name="pagado">Importe pagado</string>
+    <string name="pagado">Introducir importe pagado</string>
     <string name="cambio">Cambio</string>
     <string name="a_pagar">"Importe a pagar: "</string>
     <string name="calcular_cambio">Calcular cambio</string>

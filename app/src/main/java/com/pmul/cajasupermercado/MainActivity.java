@@ -63,7 +63,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        Toast.makeText(this, "ejecutando el onStart", Toast.LENGTH_SHORT).show();
         updateCarrito();
     }
 

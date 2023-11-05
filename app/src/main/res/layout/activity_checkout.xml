@@ -63,7 +63,7 @@
         android:id="@+id/llPago"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="32dp"
+        android:layout_marginTop="16dp"
         android:gravity="center"
         android:orientation="horizontal"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -73,37 +73,18 @@
         app:layout_constraintVertical_bias="0.0">
 
         <EditText
-            android:id="@+id/etPagoParteEntera"
+            android:id="@+id/etPago"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="16dp"
             android:hint="@string/zero"
-            android:inputType="number"
-            android:maxLength="3"
-            android:paddingEnd="32dp"
+            android:inputType="numberDecimal"
+            android:maxLength="5"
             android:textColor="@color/black"
             android:textSize="24sp"
             android:textStyle="bold" />
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/coma"
-            android:textColor="@color/black"
-            android:textSize="24sp" />
 
-        <EditText
-            android:id="@+id/etPagoParteDecimal"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="16dp"
-            android:hint="@string/zero"
-            android:inputType="number"
-            android:maxLength="2"
-            android:paddingStart="32dp"
-            android:textColor="@color/black"
-            android:textSize="24sp"
-            android:textStyle="bold" />
 
         <Button
             android:layout_width="wrap_content"
