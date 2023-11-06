@@ -387,6 +387,60 @@ public class DBManager extends SQLiteOpenHelper {
     }
 
     /**
+     * Método que actualiza la cantidad de un producto en el carrito
+     *  y su correspondiente stock, si hay suficiente, en la tabla de productos
+     *  @param id del producto
+     *  @param cantidad nueva cantidad del producto
+     *  @return verdadero si se ha podido actualizar correctamente, falso en caso contrario
+     */
+    public boolean updateProductInCarrito(int id, int cantidad) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        Cursor cursor = null;
+        try {
+            db.beginTransaction();
+            cursor = db.query(TABLE_CARRITO,
+                    new String[] {CARRITO_COL_CANT},
+                    CARRITO_COL_ID + "= ?",
+                    new String[] {Integer.toString(id)}, null, null, null, "1");
+            cursor.moveToFirst();
+            int cantidadAnterior = cursor.getInt(0);
+            cursor.close();
+            cursor = db.query(TABLE_PRODUCTS,
+                    new String[] {PRODUCTS_COL_STOCK},
+                    PRODUCTS_COL_ID + "= ?",
+                    new String[] {Integer.toString(id)}, null, null, null, "1");
+            cursor.moveToFirst();
+            int stock = cursor.getInt(0);
+            cursor.close();
+            if(stock + cantidadAnterior < cantidad) {
+                Log.i(".updateProductInCarrito", "No hay suficiente stock para añadir tal cantidad de ese producto");
+                return false;
+            } else {
+                ContentValues updatedProduct = new ContentValues();
+                updatedProduct.put(PRODUCTS_COL_STOCK, stock + cantidadAnterior - cantidad);
+                db.update(TABLE_PRODUCTS,
+                        updatedProduct,
+                        PRODUCTS_COL_ID + "= ?",
+                        new String[] {Integer.toString(id)});
+                ContentValues updatedCarrito = new ContentValues();
+                updatedCarrito.put(CARRITO_COL_CANT, cantidad);
+                db.update(TABLE_CARRITO,
+                        updatedCarrito,
+                        CARRITO_COL_ID + "= ?",
+                        new String[] {Integer.toString(id)});
+                db.setTransactionSuccessful();
+                return true;
+            }
+        } catch (SQLException exception) {
+            Log.e(".updateProductInCarrito", exception.getMessage());
+            return false;
+        } finally {
+            cursor.close();
+            db.endTransaction();
+        }
+    }
+
+    /**
      * Método que vacía la tabla carrito tras finalizar la compra
      */
     public void vaciaCarrito() {

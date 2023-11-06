@@ -157,7 +157,32 @@ public class MainActivity extends AppCompatActivity {
      * @param position posición del producto en el ArrayList
      */
     private void editProducto(int position) {
-
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle(R.string.edit_product_from_carrito);
+        builder.setMessage(this.getApplicationContext().getString(R.string.edit_product_from_carrito_message) + productos.get(position).getName() + "?");
+        View view = getLayoutInflater().inflate(R.layout.dialog_edit_product_from_carrito, null);
+        EditText etCant = (EditText) view.findViewById(R.id.etCant);
+        etCant.setText(Integer.toString(productos.get(position).getStock()));
+        builder.setView(view);
+        builder.setPositiveButton(R.string.edit, (dialog, which) -> {
+            if (etCant.getText().toString().equals("")) {
+                Toast.makeText(this, R.string.cant_edit_without_quantity, Toast.LENGTH_LONG).show();
+                return;
+            }
+            if (etCant.getText().toString().equals("0")) {
+                deleteProducto(position);
+                return;
+            }
+            if(dbManager.updateProductInCarrito(productos.get(position).getId(), Integer.parseInt(etCant.getText().toString()))) {
+                productos.get(position).setStock(Integer.parseInt(etCant.getText().toString()));
+                adaptadorProductos.notifyDataSetChanged();
+                updateCarrito();
+            } else {
+                Toast.makeText(this, R.string.cant_edit_product_from_carrito, Toast.LENGTH_LONG).show();
+            }
+        });
+        builder.setNegativeButton(R.string.cancel, null);
+        builder.create().show();
     }
 
 }

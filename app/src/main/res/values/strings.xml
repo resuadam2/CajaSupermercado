@@ -29,4 +29,10 @@
     <string name="cambio">Cambio</string>
     <string name="a_pagar">"Importe a pagar: "</string>
     <string name="calcular_cambio">Calcular cambio</string>
+    <string name="edit_product_from_carrito">Editando producto del carrito</string>
+    <string name="edit_product_from_carrito_message">"¿Qué cantidad de "</string>
+    <string name="edit">EDITAR</string>
+    <string name="cant_edit_product_from_carrito">No hay suficiente stock</string>
+    <string name="quantity">Cantidad</string>
+    <string name="cant_edit_without_quantity">Debe introducir una cantidad válida</string>
 </resources>
