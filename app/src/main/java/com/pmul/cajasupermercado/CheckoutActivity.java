@@ -20,7 +20,7 @@ public class CheckoutActivity  extends AppCompatActivity {
 
     protected EditText cantidadPagada; // cantidad pagada
 
-    protected TextView aPagar; // total a pagar
+    protected TextView aPagar, tvCambio; // total a pagar y cambio
 
     protected Button calcular; // boton para calcular el cambio
 
@@ -46,6 +46,8 @@ public class CheckoutActivity  extends AppCompatActivity {
 
         calcular = (Button) this.findViewById(R.id.btnCalcularCambio);
 
+        tvCambio = (TextView) this.findViewById(R.id.tvCambio);
+
         cambios = new ArrayList<String>();
 
         adaptador = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, cambios);
@@ -59,6 +61,8 @@ public class CheckoutActivity  extends AppCompatActivity {
         calcular.setOnClickListener(v -> calcularCambio());
 
         if(cantidadPagada.getText().length() == 0) calcular.setEnabled(false);
+
+        // TODO Limitamos el editText cantidadPagada para que solo admita dos decimales usando un inputFilter
 
         cantidadPagada.addTextChangedListener(new TextWatcher() {
             @Override
@@ -86,6 +90,7 @@ public class CheckoutActivity  extends AppCompatActivity {
         cambios.clear();
         adaptador.clear();
         adaptador.notifyDataSetChanged();
+        tvCambio.setText(this.getString(R.string.cambio));
         double pago = Double.parseDouble(cantidadPagada.getText().toString());
         double total = Double.parseDouble(aPagar.getText().toString());
 
@@ -97,13 +102,13 @@ public class CheckoutActivity  extends AppCompatActivity {
             pago = pago * 100;
             if(pago == total) {
                 Toast.makeText(this, "No hay cambio", Toast.LENGTH_SHORT).show();
+                tvCambio.setText(this.getString(R.string.cambio) + ": 0");
                 return;
             } else {
                 double cambio = pago - total;
-                int cambioEuros = (int) cambio;
-                int cambioCents = (int) ((cambio - cambioEuros) * 100);
-                cambioGrande(cambioEuros);
-                cambioPeque(cambioCents);
+                tvCambio.setText(this.getString(R.string.cambio) + ": " + Double.toString(cambio/100)); // Mostramos el cambio en euros
+                int cambioEntero = (int) cambio;
+                calcularCambioEntero(cambioEntero); // Calculamos el cambio en billetes y monedas
                 adaptador.notifyDataSetChanged();
             }
         }
@@ -111,10 +116,46 @@ public class CheckoutActivity  extends AppCompatActivity {
     }
 
     /**
-     * Calcula el cambio a devolver al cliente y añade cada moneda al ArrayList
-     * @param cambioCents cambio parte decimal
+     * Calcula el cambio a devolver al cliente y añade cada billete al ArrayList
+     * @param cambioCents cambio en centimos
      */
-    private void cambioPeque(int cambioCents) {
+    private void calcularCambioEntero(int cambioCents) {
+        if (cambioCents >= 50000) {
+            cambios.add("Billetes de 500€: " + cambioCents/50000);
+            cambioCents = cambioCents % 50000;
+        }
+        if (cambioCents >= 20000) {
+            cambios.add("Billetes de 200€: " + cambioCents/20000);
+            cambioCents = cambioCents % 20000;
+        }
+        if (cambioCents >= 10000) {
+            cambios.add("Billetes de 100€: " + cambioCents/10000);
+            cambioCents = cambioCents % 10000;
+        }
+        if (cambioCents >= 5000) {
+            cambios.add("Billetes de 50€: " + cambioCents/5000);
+            cambioCents = cambioCents % 5000;
+        }
+        if (cambioCents >= 2000) {
+            cambios.add("Billetes de 20€: " + cambioCents/2000);
+            cambioCents = cambioCents % 2000;
+        }
+        if (cambioCents >= 1000) {
+            cambios.add("Billetes de 10€: " + cambioCents/1000);
+            cambioCents = cambioCents % 1000;
+        }
+        if (cambioCents >= 500) {
+            cambios.add("Billetes de 5€: " + cambioCents/500);
+            cambioCents = cambioCents % 500;
+        }
+        if (cambioCents >= 200) {
+            cambios.add("Monedas de 2€: " + cambioCents/200);
+            cambioCents = cambioCents % 200;
+        }
+        if (cambioCents >= 100) {
+            cambios.add("Monedas de 1€: " + cambioCents/100);
+            cambioCents = cambioCents % 100;
+        }
         if(cambioCents >= 50) {
             cambios.add("Monedas de 50 cents: " + cambioCents/50);
             cambioCents = cambioCents % 50;
@@ -138,49 +179,6 @@ public class CheckoutActivity  extends AppCompatActivity {
         if(cambioCents >= 1) {
             cambios.add("Monedas de 1 cent: " + cambioCents/1);
             cambioCents = cambioCents % 1;
-        }
-    }
-
-    /**
-     * Calcula el cambio a devolver al cliente y añade cada billete al ArrayList
-     * @param cambioEuros cambio parte entera
-     */
-    private void cambioGrande(int cambioEuros) {
-        if (cambioEuros >= 500) {
-            cambios.add("Billetes de 500€: " + cambioEuros/500);
-            cambioEuros = cambioEuros % 500;
-        }
-        if (cambioEuros >= 200) {
-            cambios.add("Billetes de 200€: " + cambioEuros/200);
-            cambioEuros = cambioEuros % 200;
-        }
-        if (cambioEuros >= 100) {
-            cambios.add("Billetes de 100€: " + cambioEuros/100);
-            cambioEuros = cambioEuros % 100;
-        }
-        if (cambioEuros >= 50) {
-            cambios.add("Billetes de 50€: " + cambioEuros/50);
-            cambioEuros = cambioEuros % 50;
-        }
-        if (cambioEuros >= 20) {
-            cambios.add("Billetes de 20€: " + cambioEuros/20);
-            cambioEuros = cambioEuros % 20;
-        }
-        if (cambioEuros >= 10) {
-            cambios.add("Billetes de 10€: " + cambioEuros/10);
-            cambioEuros = cambioEuros % 10;
-        }
-        if (cambioEuros >= 5) {
-            cambios.add("Billetes de 5€: " + cambioEuros/5);
-            cambioEuros = cambioEuros % 5;
-        }
-        if (cambioEuros >= 2) {
-            cambios.add("Monedas de 2€: " + cambioEuros/2);
-            cambioEuros = cambioEuros % 2;
-        }
-        if (cambioEuros >= 1) {
-            cambios.add("Monedas de 1€: " + cambioEuros/1);
-            cambioEuros = cambioEuros % 1;
         }
     }
 

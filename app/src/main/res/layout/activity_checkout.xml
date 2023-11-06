@@ -79,7 +79,7 @@
             android:layout_margin="16dp"
             android:hint="@string/zero"
             android:inputType="numberDecimal"
-            android:maxLength="5"
+            android:maxLength="7"
             android:textColor="@color/black"
             android:textSize="24sp"
             android:textStyle="bold" />
@@ -112,6 +112,7 @@
         android:layout_height="wrap_content"
         android:id="@+id/listaCambio"
         android:layout_marginTop="16dp"
+        android:scrollbarAlwaysDrawVerticalTrack="true"
         android:layout_marginBottom="16dp"
         app:layout_constraintTop_toBottomOf="@+id/tvCambio"
         app:layout_constraintBottom_toBottomOf="parent"
