@@ -63,6 +63,9 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
+        productos.clear();
+        productos.addAll(dbManager.getAllCarrito());
+        adaptadorProductos.notifyDataSetChanged();
         updateCarrito();
     }
 
@@ -83,6 +86,17 @@ public class MainActivity extends AppCompatActivity {
         this.startActivityForResult(new Intent(this, AddProductToCarritoActivity.class), CODIGO_ADICION_PRODUCT);
     }
 
+    /**
+     * Método que recoge el nuevo producto añadido al carrito y lo añade al ArrayList
+     * @param requestCode The integer request code originally supplied to
+     *                    startActivityForResult(), allowing you to identify who this
+     *                    result came from.
+     * @param resultCode The integer result code returned by the child activity
+     *                   through its setResult().
+     * @param data An Intent, which can return result data to the caller
+     *               (various data can be attached to Intent "extras").
+     *
+     */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);

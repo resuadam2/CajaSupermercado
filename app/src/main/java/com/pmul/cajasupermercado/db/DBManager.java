@@ -385,4 +385,20 @@ public class DBManager extends SQLiteOpenHelper {
             db.endTransaction();
         }
     }
+
+    /**
+     * Método que vacía la tabla carrito tras finalizar la compra
+     */
+    public void vaciaCarrito() {
+        SQLiteDatabase db = this.getWritableDatabase();
+        try {
+            db.beginTransaction();
+            db.delete(TABLE_CARRITO, null, null);
+            db.setTransactionSuccessful();
+        } catch (SQLException exception) {
+            Log.e("vaciaCarrito", exception.getMessage());
+        } finally {
+            db.endTransaction();
+        }
+    }
 }

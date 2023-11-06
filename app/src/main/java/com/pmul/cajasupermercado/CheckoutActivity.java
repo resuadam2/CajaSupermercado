@@ -12,6 +12,8 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.pmul.cajasupermercado.db.DBManager;
+
 import java.util.ArrayList;
 
 public class CheckoutActivity  extends AppCompatActivity {
@@ -22,11 +24,16 @@ public class CheckoutActivity  extends AppCompatActivity {
 
     protected TextView aPagar, tvCambio; // total a pagar y cambio
 
-    protected Button calcular; // boton para calcular el cambio
+    protected Button calcular, pagar; // boton para calcular el cambio y para pagar
 
     protected ArrayList<String> cambios; // lista de cambios
 
     protected ArrayAdapter<String> adaptador; // adaptador para la lista de cambios
+
+    protected boolean pagable = false; // indica si se puede pagar
+
+    private DBManager dbManager; // gestor de la base de datos
+
 
     /**
      * Called when the activity is starting.  This is where most initialization
@@ -39,6 +46,8 @@ public class CheckoutActivity  extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_checkout);
+
+        dbManager = new DBManager(this);
 
         listaCambio = (ListView) this.findViewById(R.id.listaCambio);
 
@@ -81,7 +90,13 @@ public class CheckoutActivity  extends AppCompatActivity {
                 else calcular.setEnabled(true);
             }
         });
+
+        pagar = (Button) this.findViewById(R.id.btnPagar);
+        updateBtnPagar();
+        pagar.setOnClickListener(v -> pagar());
     }
+
+
 
     /**
      * Calcula el cambio a devolver al cliente y actualiza el ListView
@@ -96,20 +111,24 @@ public class CheckoutActivity  extends AppCompatActivity {
 
         if (pago < total) {
             Toast.makeText(this, "El pago es menor que el total", Toast.LENGTH_SHORT).show();
-            return;
+            pagable = false;
+            updateBtnPagar();
         } else {
             total = total * 100;
             pago = pago * 100;
             if(pago == total) {
                 Toast.makeText(this, "No hay cambio", Toast.LENGTH_SHORT).show();
                 tvCambio.setText(this.getString(R.string.cambio) + ": 0");
-                return;
+                pagable = true;
+                updateBtnPagar();
             } else {
                 double cambio = pago - total;
                 tvCambio.setText(this.getString(R.string.cambio) + ": " + Double.toString(cambio/100)); // Mostramos el cambio en euros
                 int cambioEntero = (int) cambio;
                 calcularCambioEntero(cambioEntero); // Calculamos el cambio en billetes y monedas
                 adaptador.notifyDataSetChanged();
+                pagable = true;
+                updateBtnPagar();
             }
         }
 
@@ -182,4 +201,20 @@ public class CheckoutActivity  extends AppCompatActivity {
         }
     }
 
+    /**
+     * Paga la compra y vacia el carrito
+     */
+    private void pagar() {
+        Toast.makeText(this, "Compra pagada", Toast.LENGTH_SHORT).show();
+        dbManager.vaciaCarrito();
+        finish();
+    }
+
+    /**
+     * Actualiza el boton pagar
+     */
+    private void updateBtnPagar() {
+        if(pagable) pagar.setEnabled(true);
+        else pagar.setEnabled(false);
+    }
 }
